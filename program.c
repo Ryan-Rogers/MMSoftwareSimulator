@@ -1,14 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Move node
+struct move {
+    int x;
+    int y;
+    struct move *next;
+    struct move *previous;
+};
+
 // Function prototyping
 void printmap(int inputMap[][17][2]);
+void sense(int fullMap[][17][2], int restrictedMap[][17][2],
+        struct move *inputLocation);
 
 // Code
 int main() {
     
     // Actual map which is unknown to decision-making
-    // x, y, {right wall, ceiling}
+    // [y][x]{right wall, ceiling}
     int map[17][17][2] = {
             {{1,0},{0,1},{0,1},{1,1},{0,1},{0,1},{0,1},{0,1},{1,1},{0,1},{0,1},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1}},
             {{1,0},{1,0},{1,1},{1,0},{1,0},{1,1},{0,1},{1,1},{1,0},{1,0},{0,1},{0,0},{0,0},{0,0},{0,0},{1,0},{1,0}},
@@ -51,11 +61,36 @@ int main() {
             {{2,2},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1},{2,1}}
             };
     
+    // Move list
+    struct move *location;
+    location = (struct move *)calloc(1, sizeof(struct move));
+    location -> x = 1;
+    location -> y = 16;
+    
+    printmap(mouseMap);
+    sense(map, mouseMap, location);
     printmap(mouseMap);
     
     // End of program
     printf("\nEnd of program");
     return 0;
+}
+
+// Updates the map with information around the input location
+void sense(int fullMap[][17][2], int restrictedMap[][17][2], 
+        struct move *inputLocation) {
+    
+    // Adding ceiling data
+    restrictedMap[inputLocation -> y][inputLocation -> x][1] 
+            = fullMap[inputLocation -> y][inputLocation -> x][1];
+    
+    // Adding left wall data
+    restrictedMap[inputLocation -> y][(inputLocation -> x) - 1][1] 
+            = fullMap[inputLocation -> y][(inputLocation -> x) - 1][1];
+    
+    // Adding right wall data
+    restrictedMap[inputLocation -> y][inputLocation -> x][0] 
+            = fullMap[inputLocation -> y][inputLocation -> x][0];
 }
 
 // Takes a map as input and prints it
