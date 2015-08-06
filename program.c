@@ -8,6 +8,7 @@ struct move {
     int y;
     struct move *next;
     struct move *previous;
+    int remainingMoves;
 };
 
 // Function prototyping
@@ -70,12 +71,13 @@ int main() {
     location -> x = 1;
     location -> y = 15;
     
-    // Program
-    printf("\nLocation (%d, %d)", location -> x, location -> y);
-    printMap(mouseMap);
-    int remainingMoves;
-    for(remainingMoves = 10; remainingMoves > 0; remainingMoves--) {
+    printf("\nLocation (%d, %d)", location -> x, location -> y); // DEBUG
+    printMap(mouseMap); // DEBUG
+    
+    // Program loop
+    while(location -> x != 9 || location -> y != 7) {
         sense(map, mouseMap, location);
+        printf("\nLocation (%d, %d)", location -> x, location -> y);
         location = nextMove(mouseMap, location);
         printf("\nLocation (%d, %d)", location -> x, location -> y);
         printMap(mouseMap);
@@ -84,6 +86,7 @@ int main() {
     
     // End of program
     printf("\nEnd of program");
+    printMap(map); // DEBUG
     return 0;
 }
 
@@ -107,11 +110,12 @@ int repeatMove(int inputX, int inputY, struct move *inputLocation) {
 // Determines and returns the best next move
 struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
     
-    // New move creationg via current location's -> next
-    inputLocation -> next = calloc(1, sizeof(struct move));
+    // New move creation
+    struct move *temp;
+    temp = (struct move *)calloc(1, sizeof(struct move));
     
-    // Determining valid moves
-    int validMoves[4][2]; // [move index][0] = x, [move index][1] = y
+    // Determining valid moves [move index][0] = x, [move index][1] = y
+    int validMoves[4][2] = {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
     int moveCounter = -1; // Number of valid moves in validMoves[][]
     
     // Checking ceiling
@@ -120,9 +124,9 @@ struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
         // Checking repeat
         if(!repeatMove(inputLocation -> x, (inputLocation -> y) - 1, 
                 inputLocation)) {
+            moveCounter++;
             validMoves[moveCounter][0] = inputLocation -> x;
             validMoves[moveCounter][1] = (inputLocation -> y) - 1;
-            moveCounter++;
         }
     }
     
@@ -132,9 +136,9 @@ struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
         // Checking repeat
         if(!repeatMove(inputLocation -> x, (inputLocation -> y) + 1, 
                 inputLocation)) {
+            moveCounter++;
             validMoves[moveCounter][0] = inputLocation -> x;
             validMoves[moveCounter][1] = (inputLocation -> y) + 1;
-            moveCounter++;
         }
     }
     
@@ -144,9 +148,9 @@ struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
         // Checking repeat
         if(!repeatMove((inputLocation -> x) - 1, inputLocation -> y, 
                 inputLocation)) {
+            moveCounter++;
             validMoves[moveCounter][0] = (inputLocation -> x) - 1;
             validMoves[moveCounter][1] = inputLocation -> y;
-            moveCounter++;
         }
     }
     
@@ -156,23 +160,47 @@ struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
         // Checking repeat
         if(!repeatMove((inputLocation -> x) + 1, inputLocation -> y, 
                 inputLocation)) {
+            moveCounter++;
             validMoves[moveCounter][0] = (inputLocation -> x) + 1;
             validMoves[moveCounter][1] = inputLocation -> y;
-            moveCounter++;
         }
     }
     
-    printf("\nDEBUG validMoves[0]: (%d, %d)", validMoves[0][0], validMoves[0][1]); // DEBUG
-    printf("\nDEBUG validMoves[1]: (%d, %d)", validMoves[1][0], validMoves[1][1]); // DEBUG
-    printf("\nDEBUG validMoves[2]: (%d, %d)", validMoves[2][0], validMoves[2][1]); // DEBUG
-    printf("\nDEBUG validMoves[3]: (%d, %d)", validMoves[3][0], validMoves[3][1]); // DEBUG
-    printf("\nDEBUG moveCounter: %d", moveCounter);
+    //printf("\nDEBUG validMoves[0]: (%d, %d)", validMoves[0][0], validMoves[0][1]); // DEBUG
+    //printf("\nDEBUG validMoves[1]: (%d, %d)", validMoves[1][0], validMoves[1][1]); // DEBUG
+    //printf("\nDEBUG validMoves[2]: (%d, %d)", validMoves[2][0], validMoves[2][1]); // DEBUG
+    //printf("\nDEBUG validMoves[3]: (%d, %d)", validMoves[3][0], validMoves[3][1]); // DEBUG
+    printf("\nDEBUG moveCounter: %d", moveCounter); // DEBUG
     
-    // Calculating best
-    inputLocation -> next -> x = validMoves[moveCounter][0];
-    inputLocation -> next -> y = validMoves[moveCounter][1];
+    // No new moves found
+    if(moveCounter == -1){
+        inputLocation -> remainingMoves = 0;
+        
+        // Moving to previous until unvisisted space is adjacent
+        struct move *iterator;
+        iterator = inputLocation -> previous;
+        while(iterator -> remainingMoves < 1){
+            iterator = iterator -> previous;
+        }
+        
+        // Creating next move
+        temp -> previous = inputLocation;
+        temp -> x = iterator -> x;
+        temp -> y = iterator -> y;
+        
+    // New moves found
+    } else {
+        
+        // Setting next move to first move found TEMPORARY LOGIC
+        temp -> previous = inputLocation;
+        inputLocation -> next = temp;
+        inputLocation -> remainingMoves = moveCounter + 1;
+        temp -> x = validMoves[moveCounter][0];
+        temp -> y = validMoves[moveCounter][1];
+    }
     
-    return inputLocation -> next;
+    printf("\nDEBUG remainingMoves: %d", inputLocation -> remainingMoves); // DEBUG
+    return temp;
 }
 
 // Updates the map with information around the input location
