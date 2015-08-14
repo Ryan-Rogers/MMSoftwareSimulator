@@ -71,6 +71,8 @@ int main() {
     location -> x = 1;
     location -> y = 15;
     
+    printMap(map); // DEBUG
+    
     printf("\nLocation (%d, %d)", location -> x, location -> y); // DEBUG
     printMap(mouseMap); // DEBUG
     
