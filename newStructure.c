@@ -44,7 +44,7 @@ int main(void)
     //map[0][0].posBits.n = 1;
     
     // If nextMove has knowledge, it must be part of a loop
-    move moveList[300];
+    _move moveList[300];
     
     map[0][0].Raw = 0xCB;
     printf("test pos.Raw: %02X\r\n", map[0][0].Raw);
