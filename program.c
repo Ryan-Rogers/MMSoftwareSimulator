@@ -183,6 +183,10 @@ struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
         iterator = inputLocation -> previous;
         while(iterator -> remainingMoves < 1){
             iterator = iterator -> previous;
+            
+            // DEBUG
+            if(inputLocation -> x == 7 && inputLocation -> y == 13) {
+            }
         }
         
         // Creating next move
@@ -196,12 +200,12 @@ struct move *nextMove(int inputMap[][17][2], struct move *inputLocation) {
         // Setting next move to first move found TEMPORARY LOGIC
         temp -> previous = inputLocation;
         inputLocation -> next = temp;
-        inputLocation -> remainingMoves = moveCounter + 1;
+        inputLocation -> remainingMoves = moveCounter + 2;
         temp -> x = validMoves[moveCounter][0];
         temp -> y = validMoves[moveCounter][1];
     }
     
-    printf("\nDEBUG remainingMoves: %d", inputLocation -> remainingMoves); // DEBUG
+    // printf("\nDEBUG remainingMoves: %d", inputLocation -> remainingMoves); // DEBUG
     return temp;
 }
 
@@ -210,20 +214,22 @@ void sense(int fullMap[][17][2], int restrictedMap[][17][2],
         struct move *inputLocation) {
     
     // Adding ceiling data
-    restrictedMap[(inputLocation -> y) - 1][inputLocation -> x][1] 
-            = fullMap[(inputLocation -> y) - 1][inputLocation -> x][1];
+    restrictedMap[(inputLocation -> y)][inputLocation -> x][1] 
+            = fullMap[(inputLocation -> y)][inputLocation -> x][1];
             
     // Adding floor data
     restrictedMap[(inputLocation -> y) + 1][inputLocation -> x][1] 
             = fullMap[(inputLocation -> y) + 1][inputLocation -> x][1];
     
     // Adding left wall data
-    restrictedMap[(inputLocation -> y) - 1][(inputLocation -> x) - 1][0] 
-            = fullMap[(inputLocation -> y) - 1][(inputLocation -> x) - 1][0];
+    // Removed "- 1"  from y
+    restrictedMap[(inputLocation -> y)][(inputLocation -> x) - 1][0] 
+            = fullMap[(inputLocation -> y)][(inputLocation -> x) - 1][0];
     
     // Adding right wall data
-    restrictedMap[(inputLocation -> y) - 1][inputLocation -> x][0] 
-            = fullMap[(inputLocation -> y) - 1][inputLocation -> x][0];
+    // Removed "- 1"  from y
+    restrictedMap[(inputLocation -> y)][inputLocation -> x][0] 
+            = fullMap[(inputLocation -> y)][inputLocation -> x][0];
 }
 
 // Takes a map as input and prints it
